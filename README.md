@@ -14,6 +14,8 @@ kubectl edit eventsource -n argo-events github-event-source
 # also update to whatever repo you want it to control the webhooks for
 ```
 
+Go to http://localhost:9000 and add a new bucket named `artifacts` (default creds)
+
 ## Troubleshooting
 
 ```bash
