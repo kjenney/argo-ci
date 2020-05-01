@@ -27,4 +27,7 @@ kubectl logs -f -n argo-events -l gateway-name=github-gateway --all-containers
 
 # tail sensor logs
 kubectl logs -f -l owner-name=github-sensor -n argo-events
+
+# delete all workflows
+kubectl delete workflow -n argo-events --all
 ```
