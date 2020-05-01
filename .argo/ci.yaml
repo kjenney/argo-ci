@@ -118,7 +118,7 @@ spec:
           - name:  GITHUB_DESCRIPTION
             value: "{{inputs.parameters.description}}"
           - name:  GITHUB_TARGET_URL
-            value: "https://my-ci.com/build/1"
+            value: "https://39dfa01b.ngrok.io/workflows/{{workflow.namespace}}/{{workflow.name}}"
 
     - name: build-docker
       inputs:

@@ -1,0 +1,9 @@
+tunnels:
+  webhook:
+    proto: http
+    addr: 12000
+    bind_tls: true
+  workflows:
+    proto: http
+    addr: 2746
+    bind_tls: true
