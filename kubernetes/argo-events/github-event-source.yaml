@@ -30,7 +30,7 @@ spec:
       # following listens to everything, hence *
       # You can find more info on https://developer.github.com/v3/activity/events/types/
       events:
-        - "*"
+        - "push"
 
 #      # Namespace where the api token and webhook secret live.
 #      # +Optional. Default to gateway's namespace.
