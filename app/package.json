@@ -1,0 +1,21 @@
+{
+  "name": "demo-app",
+  "version": "1.0.0",
+  "description": "Demo app to show functionality of Kubernetes CI/CD Pipelines",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-handlebars": "^4.0.2"
+  },
+  "devDependencies": {
+    "jsdom": "^16.2.2",
+    "mocha": "^7.1.1"
+  },
+  "scripts": {
+    "test": "mocha --exit",
+    "start": "node server.js",
+    "start:dev": "nodemon -e js,handlebars server.js"
+  },
+  "author": "Caitlin Elfring <celfring@gmail.com>",
+  "license": "ISC"
+}

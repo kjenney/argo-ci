@@ -1,0 +1,61 @@
+# references:
+# https://github.com/argoproj/argo-events/blob/master/examples/sensors/complete-trigger-parameterization.yaml
+
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: github-sensor
+  labels:
+    sensors.argoproj.io/sensor-controller-instanceid: argo-events
+spec:
+  template:
+    spec:
+      containers:
+        - name: sensor
+          image: argoproj/sensor:v0.14.0
+          imagePullPolicy: Always
+      serviceAccountName: argo-events-sa
+  dependencies:
+    - name: test-dep
+      gatewayName: github-gateway
+      eventName: example
+  subscription:
+    http:
+      port: 9300
+  triggers:
+    - template:
+        name: github-trigger-workflow
+        k8s:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: create
+          source:
+            git:
+              url: THIS_WILL_BE_REPLACED
+              # TODO: this should be dynamic per-repo
+              cloneDirectory: "/git/k8s-demo"
+              filePath: ".argo/ci.yaml"
+              # TODO make this dynamic. Using ref causes fetch issues
+              branch: master
+          # Apply parameters for workflow resource fetched from github
+          parameters:
+            - src:
+                dependencyName: test-dep
+                dataKey: body.head_commit.id
+              dest: spec.arguments.parameters.0.value
+      # Apply parameters at the template level.
+      # these are pulled from the github webhook body
+      parameters:
+        - src:
+            dependencyName: test-dep
+            dataKey: body.repository.name
+          dest: name
+        - src:
+            dependencyName: test-dep
+            dataKey: body.repository.git_url
+          dest: k8s.source.git.url
+        # - src:
+        #     dependencyName: test-dep
+        #     dataKey: body.ref
+        #   dest: k8s.source.git.ref

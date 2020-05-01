@@ -1,0 +1,164 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: hello-world-ci-
+spec:
+  entrypoint: hello-world-ci
+  onExit: exit-handler
+  arguments:
+    parameters:
+      - name: revision
+        value: master
+
+  templates:
+    - name: hello-world-ci
+      steps:
+        - - name: checkout
+            template: checkout
+        - - name: start-status
+            template: status
+        - - name: build-docker
+            template: build-docker
+            arguments:
+              artifacts:
+                - name: source
+                  from: "{{steps.checkout.outputs.artifacts.source}}"
+          - name: test-unit
+            template: test-unit
+            arguments:
+              artifacts:
+                - name: source
+                  from: "{{steps.checkout.outputs.artifacts.source}}"
+
+    - name: checkout
+      inputs:
+        artifacts:
+          - name: source
+            path: /src
+            git:
+              repo: https://github.com/caitlin615/argo-ci.git
+              revision: "{{workflow.parameters.revision}}"
+      outputs:
+        artifacts:
+          - name: source
+            path: /src
+      container:
+        image: alpine/git
+        command: ["/bin/sh", "-c"]
+        args: ["cd /src && git status && ls -l"]
+
+    - name: test-unit
+      inputs:
+        parameters:
+          - name: cmd
+            value: "npm install && npm test"
+        artifacts:
+          - name: source
+            path: /src
+            git:
+              repo: https://github.com/caitlin615/argo-ci.git
+              revision: "{{workflow.parameters.revision}}"
+      container:
+        image: node:13-alpine
+        command: [sh, -c]
+        args: ["{{inputs.parameters.cmd}}"]
+        workingDir: /src/app
+
+    # exit handler related templates
+    # After the completion of the entrypoint template, the status of the
+    # workflow is made available in the global variable {{workflow.status}}.
+    # {{workflow.status}} will be one of: Succeeded, Failed, Error
+    - name: exit-handler
+      steps:
+        - - name: success
+            template: status
+            when: "{{workflow.status}} == Succeeded"
+            arguments:
+              parameters:
+                - name: state
+                  value: success
+                - name: description
+                  value: "Pushed celfring/hello-world:{{workflow.parameters.revision}}"
+          - name: failed
+            template: status
+            when: "{{workflow.status}} != Succeeded"
+            arguments:
+              parameters:
+                - name: state
+                  value: failure
+                - name: description
+                  value: FAILED
+    - name: status
+      inputs:
+        parameters:
+          - name: state
+            value: pending
+          - name: description
+            value: Running
+      container:
+        image: cloudposse/github-status-updater
+        env:
+          - name: GITHUB_ACTION
+            value: update_state
+          - name:  GITHUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github-access-token
+                key: password
+          - name:  GITHUB_OWNER
+            value: caitlin615
+          - name:  GITHUB_REPO
+            value: argo-ci
+          - name:  GITHUB_REF
+            value: "{{workflow.parameters.revision}}"
+          - name:  GITHUB_STATE
+            value: "{{inputs.parameters.state}}"
+          - name:  GITHUB_CONTEXT
+            value: "Argo"
+          - name:  GITHUB_DESCRIPTION
+            value: "{{inputs.parameters.description}}"
+          - name:  GITHUB_TARGET_URL
+            value: "https://my-ci.com/build/1"
+
+    - name: build-docker
+      inputs:
+        artifacts:
+          - name: source
+            path: /src
+            git:
+              repo: https://github.com/caitlin615/argo-ci.git
+              revision: "{{workflow.parameters.revision}}"
+      container:
+        image: docker:17.10
+        command: [sh, -c]
+        workingDir: /src/app
+        args:
+          - |
+            until docker ps; do sleep 3; done
+            docker login -u ${DOCKERHUB_USER} -p ${DOCKERHUB_PASS}
+            docker build -t celfring/hello-world:{{workflow.parameters.revision}} .
+            docker push celfring/hello-world:{{workflow.parameters.revision}}
+            docker image rm -f celfring/hello-world:{{workflow.parameters.revision}}
+        env:
+          - name: DOCKER_HOST
+            value: 127.0.0.1
+          - name: DOCKERHUB_USER  # name of env var
+            valueFrom:
+              secretKeyRef:
+                name: dockerhub-generic
+                key: username
+          - name: DOCKERHUB_PASS  # name of env var
+            valueFrom:
+              secretKeyRef:
+                name: dockerhub-generic
+                key: password
+      sidecars:
+        - name: dind
+          image: docker:18.09.4-dind
+          securityContext:
+            privileged: true
+          # mirrorVolumeMounts will mount the same volumes specified in the main container
+          # to the sidecar (including artifacts), at the same mountPaths. This enables
+          # dind daemon to (partially) see the same filesystem as the main container in
+          # order to use features such as docker volume binding.
+          mirrorVolumeMounts: true
