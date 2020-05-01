@@ -3,7 +3,7 @@ var exphbs  = require("express-handlebars");
 var os = require("os");
 
 var port = process.env.PORT || 8080;
-var message = process.env.MESSAGE || "Hello home!";
+var message = process.env.MESSAGE || "Hello August!";
 
 var app = express();
 
