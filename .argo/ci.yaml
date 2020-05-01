@@ -145,12 +145,12 @@ spec:
           - name: DOCKERHUB_USER  # name of env var
             valueFrom:
               secretKeyRef:
-                name: dockerhub-generic
+                name: dockerhub
                 key: username
           - name: DOCKERHUB_PASS  # name of env var
             valueFrom:
               secretKeyRef:
-                name: dockerhub-generic
+                name: dockerhub
                 key: password
       sidecars:
         - name: dind
