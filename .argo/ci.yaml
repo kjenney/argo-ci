@@ -78,7 +78,7 @@ spec:
                 - name: state
                   value: success
                 - name: description
-                  value: "pushed celfring/hello-world:{{workflow.parameters.revision}}"
+                  value: "{{workflow.status}}: pushed celfring/hello-world:{{workflow.parameters.revision}}"
           - name: failed
             template: status
             when: "{{workflow.status}} != Succeeded"
@@ -87,7 +87,7 @@ spec:
                 - name: state
                   value: failure
                 - name: description
-                  value: FAILED
+                  value: "{{workflow.status}}: {{workflow.failures}}"
     - name: status
       inputs:
         parameters:
@@ -116,7 +116,7 @@ spec:
           - name:  GITHUB_CONTEXT
             value: "Argo"
           - name:  GITHUB_DESCRIPTION
-            value: "{{workflow.status}}: {{inputs.parameters.description}}"
+            value: "{{inputs.parameters.description}}"
           - name:  GITHUB_TARGET_URL
             value: "https://my-ci.com/build/1"
 
