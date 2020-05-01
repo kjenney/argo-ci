@@ -45,7 +45,7 @@ spec:
       container:
         image: alpine/git
         command: ["/bin/sh", "-c"]
-        args: ["cd /src && git status && ls -l"]
+        args: ["cd /src && git status && ls -l && echo {{workflow.name}} {{workflow.uid}}"]
 
     - name: test-unit
       inputs:
@@ -78,7 +78,7 @@ spec:
                 - name: state
                   value: success
                 - name: description
-                  value: "Pushed celfring/hello-world:{{workflow.parameters.revision}}"
+                  value: "pushed celfring/hello-world:{{workflow.parameters.revision}}"
           - name: failed
             template: status
             when: "{{workflow.status}} != Succeeded"
@@ -116,7 +116,7 @@ spec:
           - name:  GITHUB_CONTEXT
             value: "Argo"
           - name:  GITHUB_DESCRIPTION
-            value: "{{inputs.parameters.description}}"
+            value: "{{workflow.status}}: {{inputs.parameters.description}}"
           - name:  GITHUB_TARGET_URL
             value: "https://my-ci.com/build/1"
 
