@@ -31,7 +31,7 @@ dockerhub:
 deinit:
 	kubectl delete -n $(NS) -f kubernetes/argo-events
 	kubectl delete -n $(NS) -f https://raw.githubusercontent.com/argoproj/$(NS)/$(AE_HASH)/manifests/namespace-install.yaml
-	kubectl delete -n $(NS) -f kubernetes/argo-workflow
+	# kubectl delete -n $(NS) -f kubernetes/argo-workflow
 	kubectl delete -n $(NS) -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/install.yaml
 	helm3 delete --namespace $(NS) argo-artifacts
 
