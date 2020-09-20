@@ -11,7 +11,7 @@ spec:
   github:
     example:
       # owner of the repo
-      owner: caitlin615
+      owner: kjenney
       # repository name
       repository: argo-ci
       # Github will send events to following port and endpoint
@@ -58,28 +58,3 @@ spec:
       active: true
       # The media type used to serialize the payloads
       contentType: json
-
-#    example-with-secure-connection:
-#      owner: "argoproj"
-#      repository: "argo"
-#      webhook:
-#        endpoint: "/push"
-#        port: "13000"
-#        method: "POST"
-#        url: "http://myargofakeurl.fake"
-#        # path to file that is mounted in gateway pod which contains certs
-#        serverCertPath: "some path in pod"
-#        # path to file that is mounted in gateway pod which contains private key
-#        serverKeyPath: "some path in pod"
-#      events:
-#        - "push"
-#        - "delete"
-#      apiToken:
-#        name: github-access
-#        key: token
-#      webhookSecret:
-#        name: github-access
-#        key: secret
-#      insecure: true
-#      active: true
-#      contentType: "json"

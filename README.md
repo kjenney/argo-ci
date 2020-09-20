@@ -2,8 +2,22 @@
 
 Demo of using [Argo Workflows](https://argoproj.github.io/projects/argo) with [Argo Events](https://argoproj.github.io/projects/argo-events) to build a CI tool for Github.
 
+## Prerequisites
+
+* [Helm3](https://helm.sh/docs/intro/install/) Installed
+* Helm repo: `helm repo add stable https://kubernetes-charts.storage.googleapis.com/`
+
+## Secrets
+
+Secrets are stored in .env. See `sample.env`.
+
+## Getting Started
+
 ```bash
+# get everything up and running
 make init
+# set DockerHub secrets for pushing images
+make dockerhub
 
 # expose github gateway
 ngrok start -config ngrok.yml --all
@@ -12,12 +26,33 @@ ngrok start -config ngrok.yml --all
 kubectl edit eventsource -n argo-events github-event-source
 # edit spec.github.example.webhook.url to match the https endpoint provided by ngrok
 # (use the url that's forwarding to 12000)
-# also update to whatever repo you want it to control the webhooks for
-
-# you will also need to update the URL in `.argo/ci.yaml` for the status check (use the url that's forwarding to 2746)
+# Update to whatever repo you want it to control the webhooks for
 ```
 
-Go to <http://localhost:9000> and add a new bucket named `artifacts` (default creds)
+Update the URL in `.argo/ci.yaml` for the status check (use the url that's forwarding to 2746)
+
+## Create bucket on Minio
+
+Login to the Minio UI using a web browser (port 9000) after obtaining the external IP using kubectl.
+
+```
+kubectl get service argo-artifacts -n argo-events
+```
+
+On Minikube:
+
+```
+minikube service --url argo-artifacts -n argo-events
+```
+
+NOTE: When minio is installed via Helm, it uses the following hard-wired default credentials, which you will use to login to the UI:
+
+```
+AccessKey: AKIAIOSFODNN7EXAMPLE
+SecretKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+```
+
+Add a new bucket named `artifacts` (default creds)
 
 ## Troubleshooting
 

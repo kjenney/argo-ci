@@ -1,5 +1,5 @@
 NS=argo-events
-# argo-events install broke in https://github.com/argoproj/argo-events/commit/e7ecad29ec8d3f2b703f812a0e96a32745d3f8f6
+# This is using an older version of Argo-Events before Gateway's were merged with EventSources
 AE_HASH=336cb65a412db9b5b1362f04534e28ac74e829d9
 
 watch:
@@ -14,13 +14,12 @@ init:
 		--dry-run=client -o yaml | kubectl apply -f -
 	kubectl apply -n $(NS) -f https://raw.githubusercontent.com/argoproj/argo-events/$(AE_HASH)/manifests/namespace-install.yaml
 	kubectl apply -n $(NS) -f kubernetes/argo-events
-	helm3 upgrade argo-artifacts stable/minio \
+	helm upgrade argo-artifacts stable/minio \
 		--install --namespace $(NS) \
 		--set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
-	kubectl apply -n $(NS) -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/install.yaml
+	kubectl apply -n $(NS) -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/quick-start-postgres.yaml
 	kubectl apply -n $(NS) -f kubernetes/argo-workflow
 	kubectl patch svc -n $(NS) argo-server -p '{"spec": {"type": "LoadBalancer"}}'
-
 
 dockerhub:
 	@kubectl create secret generic dockerhub --namespace $(NS) \
@@ -32,7 +31,7 @@ deinit:
 	kubectl delete -n $(NS) -f kubernetes/argo-events
 	kubectl delete -n $(NS) -f https://raw.githubusercontent.com/argoproj/$(NS)/$(AE_HASH)/manifests/namespace-install.yaml
 	kubectl delete -n $(NS) -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/install.yaml
-	helm3 delete --namespace $(NS) argo-artifacts
+	helm delete --namespace $(NS) argo-artifacts
 
 .PHONY: \
 	init deinit \

@@ -36,7 +36,7 @@ spec:
           - name: source
             path: /src
             git:
-              repo: https://github.com/caitlin615/argo-ci.git
+              repo: https://github.com/kjenney/argo-ci.git
               revision: "{{workflow.parameters.revision}}"
       outputs:
         artifacts:
@@ -56,7 +56,7 @@ spec:
           - name: source
             path: /src
             git:
-              repo: https://github.com/caitlin615/argo-ci.git
+              repo: https://github.com/kjenney/argo-ci.git
               revision: "{{workflow.parameters.revision}}"
       container:
         image: node:13-alpine
@@ -106,7 +106,7 @@ spec:
                 name: github-access-token
                 key: password
           - name:  GITHUB_OWNER
-            value: caitlin615
+            value: kjenney
           - name:  GITHUB_REPO
             value: argo-ci
           - name:  GITHUB_REF
@@ -118,7 +118,7 @@ spec:
           - name:  GITHUB_DESCRIPTION
             value: "{{inputs.parameters.description}}"
           - name:  GITHUB_TARGET_URL
-            value: "https://ac375e55.ngrok.io/workflows/{{workflow.namespace}}/{{workflow.name}}"
+            value: "https://35afaa316986.ngrok.io/workflows/{{workflow.namespace}}/{{workflow.name}}"
 
     - name: build-docker
       inputs:
@@ -126,7 +126,7 @@ spec:
           - name: source
             path: /src
             git:
-              repo: https://github.com/caitlin615/argo-ci.git
+              repo: https://github.com/kjenney/argo-ci.git
               revision: "{{workflow.parameters.revision}}"
       container:
         image: docker:17.10
