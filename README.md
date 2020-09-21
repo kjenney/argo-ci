@@ -13,23 +13,21 @@ Secrets are stored in .env. See `sample.env`.
 
 ## Getting Started
 
-```bash
+```
 # get everything up and running
 make init
+
 # set DockerHub secrets for pushing images
 make dockerhub
 
-# expose github gateway
-ngrok start -config ngrok.yml --all
+# expose github gateway and argo workflows with minikube
+./ngrok-generate.sh
 
 # update the github event source with the publicly-exposed url via ngrok
 kubectl edit eventsource -n argo-events github-event-source
 # edit spec.github.example.webhook.url to match the https endpoint provided by ngrok
 # (use the url that's forwarding to 12000)
-# Update to whatever repo you want it to control the webhooks for
 ```
-
-Update the URL in `.argo/ci.yaml` for the status check (use the url that's forwarding to 2746)
 
 ## Create bucket on Minio
 
